@@ -3,7 +3,6 @@
 namespace Sichikawa\LaravelSendgridDriver;
 
 use Illuminate\Mail\Mailable;
-use Illuminate\Support\Facades\Log;
 use Sichikawa\LaravelSendgridDriver\Transport\SendgridTransport;
 use Swift_Message;
 
@@ -19,15 +18,6 @@ trait SendGrid
         if ($this instanceof Mailable && $this->mailDriver() == "sendgrid") {
             $this->withSwiftMessage(function (Swift_Message $message) use ($params) {
                 $message->embed(new \Swift_Image(static::sgEncode($params), SendgridTransport::SMTP_API_NAME));
-
-                if (isset($params['logging']) && $params['logging']) {
-                    Log::info('sendgrid', [
-                        'message_id' => $message->getId(),
-                        'message_from' => implode(', ', array_keys($message->getFrom())),
-                        'message_to' => implode(', ', array_keys($message->getTo())),
-                        'message_subject' => $message->getSubject(),
-                    ]);
-                }
             });
         }
 

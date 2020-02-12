@@ -6,6 +6,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Mail\Transport\Transport;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Sichikawa\LaravelSendgridDriver\SendGrid;
 use Swift_Attachment;
 use Swift_Image;
@@ -72,10 +73,28 @@ class SendgridTransport extends Transport
                 'Content-Type' => 'application/json',
             ],
             'json' => $data,
+            'http_errors' => false,
         ];
+
+        $logging = \Config::get('services.sendgrid.logging');
+        if ($logging) {
+            Log::info('sendgrid', [
+                'message_id' => $message->getId(),
+                'message_from' => implode(', ', array_keys($message->getFrom())),
+                'message_to' => implode(', ', array_keys($message->getTo())),
+                'message_subject' => $message->getSubject(),
+            ]);
+        }
 
         $response = $this->post($payload);
 
+        if ($logging) {
+            Log::info('sendgrid', [
+                'message_id' => $message->getId(),
+                'message_status_code' => $response->getStatusCode(),
+                'message_date' => $response->getHeaderLine('Date'),
+            ]);
+        }
         if (method_exists($response, 'getHeaderLine')) {
             $message->getHeaders()->addTextHeader('X-Message-Id', $response->getHeaderLine('X-Message-Id'));
         }

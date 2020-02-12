@@ -23,7 +23,7 @@ and
     },
 ```
 
-# Configuration
+## Configuration
 
 ```php
 $app['config']->set('services.sendgrid.logging', true);

@@ -6,22 +6,22 @@ Extend [s-ichikawa/laravel-sendgrid-driver](https://github.com/s-ichikawa/larave
 ## Install
 Add repo to repositories section to your composer.phar
 
-    ```json
+```json
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/maxvdovin/laravel-sendgrid-driver.git"
         }
     ]
-    ```
+```
 
 and
 
-    ```json
+```json
     "require": {
         "s-ichikawa/laravel-sendgrid-driver": "dev-logging",
     },
-    ```
+```
 
 # Configuration
 

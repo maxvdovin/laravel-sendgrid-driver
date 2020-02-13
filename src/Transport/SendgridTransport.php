@@ -78,7 +78,7 @@ class SendgridTransport extends Transport
 
         $logging = \Config::get('services.sendgrid.logging');
         if ($logging) {
-            Log::info('sendgrid', [
+            Log::info('sendgrid_mail_driver_log', [
                 'message_id' => $message->getId(),
                 'message_from' => implode(', ', array_keys($message->getFrom())),
                 'message_to' => implode(', ', array_keys($message->getTo())),
@@ -89,7 +89,7 @@ class SendgridTransport extends Transport
         $response = $this->post($payload);
 
         if ($logging) {
-            Log::info('sendgrid', [
+            Log::info('sendgrid_mail_driver_log', [
                 'message_id' => $message->getId(),
                 'message_status_code' => $response->getStatusCode(),
                 'message_date' => $response->getHeaderLine('Date'),

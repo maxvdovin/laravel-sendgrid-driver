@@ -94,6 +94,7 @@ class SendgridTransport extends Transport
                 'message_status_code' => $response->getStatusCode(),
                 'message_date' => $response->getHeaderLine('Date'),
                 'x-message-id' => $response->getHeaderLine('X-Message-Id'),
+                'response' => $response->getBody(),
             ]);
         }
         if (method_exists($response, 'getHeaderLine')) {

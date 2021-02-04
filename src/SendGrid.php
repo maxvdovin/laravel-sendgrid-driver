@@ -20,6 +20,7 @@ trait SendGrid
                 $message->embed(new \Swift_Image(static::sgEncode($params), SendgridTransport::SMTP_API_NAME));
             });
         }
+
         return $this;
     }
 

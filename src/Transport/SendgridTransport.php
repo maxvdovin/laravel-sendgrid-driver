@@ -1,4 +1,5 @@
 <?php
+
 namespace Sichikawa\LaravelSendgridDriver\Transport;
 
 use GuzzleHttp\Client;
@@ -46,10 +47,18 @@ class SendgridTransport extends Transport
     {
         $this->beforeSendPerformed($message);
 
+        $logging = \Config::get('services.sendgrid.logging');
+        if ($logging) {
+            Log::info('sendgrid_mail_driver_log', [
+                'sendgrid_api_key' => $this->apiKey,
+                'sendgrid_api_key_id' => $this->get_string_between($this->apiKey, ".", "."),
+            ]);
+        }
+
         $data = [
             'personalizations' => $this->getPersonalizations($message),
-            'from'             => $this->getFrom($message),
-            'subject'          => $message->getSubject(),
+            'from' => $this->getFrom($message),
+            'subject' => $message->getSubject(),
         ];
 
         if ($contents = $this->getContents($message)) {
@@ -76,7 +85,6 @@ class SendgridTransport extends Transport
             'http_errors' => false,
         ];
 
-        $logging = \Config::get('services.sendgrid.logging');
         if ($logging) {
             Log::info('sendgrid_mail_driver_log', [
                 'message_id' => $message->getId(),
@@ -109,6 +117,26 @@ class SendgridTransport extends Transport
             return $this->numberOfRecipients ?: $this->numberOfRecipients($message);
         }
         return $response;
+    }
+
+    /**
+     * Returns substring of $string, between two given strings, $start & $end
+     *
+     * @param $string
+     * @param $start
+     * @param $end
+     * @return false|string
+     */
+    function get_string_between($string, $start, $end)
+    {
+        $string = ' ' . $string;
+        $ini = strpos($string, $start);
+        if ($ini == 0) {
+            return '';
+        }
+        $ini += strlen($start);
+        $len = strpos($string, $end, $ini) - $ini;
+        return substr($string, $ini, $len);
     }
 
     /**
@@ -188,7 +216,7 @@ class SendgridTransport extends Transport
             case 'text/plain':
                 return [
                     [
-                        'type'  => 'text/plain',
+                        'type' => 'text/plain',
                         'value' => $message->getBody(),
 
                     ],
@@ -196,7 +224,7 @@ class SendgridTransport extends Transport
             case 'text/html':
                 return [
                     [
-                        'type'  => 'text/html',
+                        'type' => 'text/html',
                         'value' => $message->getBody(),
                     ],
                 ];
@@ -207,7 +235,7 @@ class SendgridTransport extends Transport
         foreach ($message->getChildren() as $child) {
             if ($child instanceof Swift_MimePart && $child->getContentType() === 'text/plain') {
                 $content[] = [
-                    'type'  => 'text/plain',
+                    'type' => 'text/plain',
                     'value' => $child->getBody(),
                 ];
             }
@@ -218,7 +246,7 @@ class SendgridTransport extends Transport
         }
 
         $content[] = [
-            'type'  => 'text/html',
+            'type' => 'text/html',
             'value' => $message->getBody(),
         ];
         return $content;
@@ -239,11 +267,11 @@ class SendgridTransport extends Transport
                 continue;
             }
             $attachments[] = [
-                'content'     => base64_encode($attachment->getBody()),
-                'filename'    => $attachment->getFilename(),
-                'type'        => $attachment->getContentType(),
+                'content' => base64_encode($attachment->getBody()),
+                'filename' => $attachment->getFilename(),
+                'type' => $attachment->getContentType(),
                 'disposition' => $attachment->getDisposition(),
-                'content_id'  => $attachment->getId(),
+                'content_id' => $attachment->getId(),
             ];
         }
         return $this->attachments = $attachments;

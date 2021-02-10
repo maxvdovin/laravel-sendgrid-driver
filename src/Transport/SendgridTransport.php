@@ -47,14 +47,6 @@ class SendgridTransport extends Transport
     {
         $this->beforeSendPerformed($message);
 
-        $logging = \Config::get('services.sendgrid.logging');
-        if ($logging) {
-            Log::info('sendgrid_mail_driver_log', [
-                'sendgrid_api_key' => $this->apiKey,
-                'sendgrid_api_key_id' => $this->get_string_between($this->apiKey, ".", "."),
-            ]);
-        }
-
         $data = [
             'personalizations' => $this->getPersonalizations($message),
             'from' => $this->getFrom($message),
@@ -85,8 +77,11 @@ class SendgridTransport extends Transport
             'http_errors' => false,
         ];
 
+        $logging = \Config::get('services.sendgrid.logging');
         if ($logging) {
             Log::info('sendgrid_mail_driver_log', [
+                'sendgrid_api_key' => $this->apiKey,
+                'sendgrid_api_key_id' => $this->get_string_between($this->apiKey, ".", "."),
                 'message_id' => $message->getId(),
                 'message_from' => implode(', ', array_keys($message->getFrom())),
                 'message_to' => implode(', ', array_keys($message->getTo())),
@@ -98,6 +93,8 @@ class SendgridTransport extends Transport
 
         if ($logging) {
             Log::info('sendgrid_mail_driver_log', [
+                'sendgrid_api_key' => $this->apiKey,
+                'sendgrid_api_key_id' => $this->get_string_between($this->apiKey, ".", "."),
                 'message_id' => $message->getId(),
                 'message_status_code' => $response->getStatusCode(),
                 'message_date' => $response->getHeaderLine('Date'),
